@@ -1,6 +1,6 @@
 # BetterDesktop
 
-This application hopes to become what TotalSpaces2 is for Mac. It has a long way to go.
+This application hopes to become for Windows 10 what TotalSpaces2 is for Mac. It has a long way to go.
 
 - Show an overview of all desktops in a grid
 - Switch to other desktops using arrow keys (left/right wrapping, and up and down later)
