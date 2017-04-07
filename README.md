@@ -21,6 +21,8 @@ https://github.com/Grabacr07/VirtualDesktop
 
 - Open Start menu, type "multitasking", press enter, scroll down in the Multitasking settings to the Virtual Desktops section, change both options to "All desktops"
 
+This is possibly needed to be able to query for all the windows from any desktop.
+
 ### The Desktops
 
 - Get all desktops
