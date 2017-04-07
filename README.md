@@ -14,3 +14,8 @@ https://github.com/Grabacr07/SylphyHorn
 
 It uses this library:
 https://github.com/Grabacr07/VirtualDesktop
+
+
+Prerequisites:
+
+- Open Start menu, type "multitasking", press enter, scroll down in the Multitasking settings to the Virtual Desktops section, change both options to "All desktops"
