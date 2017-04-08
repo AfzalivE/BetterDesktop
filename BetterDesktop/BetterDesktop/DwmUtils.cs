@@ -9,7 +9,7 @@ namespace BetterDesktop {
     #region Helper structs
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct DWM_THUMBNAIL_PROPERTIES {
+    public struct DwmThumbnailProperties {
         public int dwFlags;
         public Rect rcDestination;
         public Rect rcSource;
@@ -34,7 +34,7 @@ namespace BetterDesktop {
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct PSIZE {
+    public struct Psize {
         public int x;
         public int y;
     }
@@ -86,14 +86,14 @@ namespace BetterDesktop {
         static extern int DwmUnregisterThumbnail(IntPtr thumb);
 
         [DllImport("dwmapi.dll")]
-        static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out PSIZE size);
+        static extern int DwmQueryThumbnailSourceSize(IntPtr thumb, out Psize size);
 
         [DllImport("dwmapi.dll")]
-        static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
+        static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DwmThumbnailProperties props);
 
         [DllImport("dwmapi.dll")]
-        static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
-
+        static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute,
+            int cbAttribute);
 
         #endregion
 
@@ -104,6 +104,7 @@ namespace BetterDesktop {
 
         [DllImport("user32.dll")]
         static extern int EnumWindows(EnumWindowsCallback lpEnumFunc, int lParam);
+
         delegate bool EnumWindowsCallback(IntPtr hwnd, int lParam);
 
         [DllImport("user32.dll")]
@@ -118,30 +119,32 @@ namespace BetterDesktop {
             var ret = new Dictionary<IntPtr, string>();
 
             EnumWindows((hwnd, lParam) => {
-                if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW) {
-                    var sb = new StringBuilder(100);
-                    GetWindowText(hwnd, sb, sb.Capacity);
-                    if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
-                        Console.WriteLine("Ignoring invisible window: {0}", sb);
-                    } else {
-                        ret.Add(hwnd, sb.ToString());
+                    if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW) {
+                        var sb = new StringBuilder(100);
+                        GetWindowText(hwnd, sb, sb.Capacity);
+                        if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
+                            Console.WriteLine("Ignoring invisible window: {0}", sb);
+                        }
+                        else {
+                            ret.Add(hwnd, sb.ToString());
+                        }
                     }
-                }
 
-                return true; //continue enumeration
-            }
-            , 0);
+                    return true; //continue enumeration
+                }
+                , 0);
 
             return ret;
         }
 
         static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd) {
-            bool CloakedVal;
-            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out CloakedVal, Marshal.SizeOf(typeof(bool)));
+            bool cloakedVal;
+            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out cloakedVal,
+                Marshal.SizeOf(typeof(bool)));
             if (hRes != 0) {
-                CloakedVal = false;
+                cloakedVal = false;
             }
-            return CloakedVal;
+            return cloakedVal;
         }
 
         public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest) {
@@ -152,22 +155,24 @@ namespace BetterDesktop {
 
             int ret = DwmRegisterThumbnail(destination, source, out newhandle);
 
-            if (ret == 0) {
-                var props = new DWM_THUMBNAIL_PROPERTIES();
-
-                props.dwFlags =
-                    DWM_TNP_SOURCECLIENTAREAONLY |
-                    DWM_TNP_VISIBLE |
-                    DWM_TNP_OPACITY |
-                    DWM_TNP_RECTDESTINATION;
-
-                props.fSourceClientAreaOnly = false;
-                props.fVisible = true;
-                props.opacity = 255;
-                props.rcDestination = dest;
-
-                DwmUpdateThumbnailProperties(newhandle, ref props);
+            if (ret != 0) {
+                return newhandle;
             }
+
+            var props = new DwmThumbnailProperties();
+
+            props.dwFlags =
+                DWM_TNP_SOURCECLIENTAREAONLY |
+                DWM_TNP_VISIBLE |
+                DWM_TNP_OPACITY |
+                DWM_TNP_RECTDESTINATION;
+
+            props.fSourceClientAreaOnly = false;
+            props.fVisible = true;
+            props.opacity = 255;
+            props.rcDestination = dest;
+
+            DwmUpdateThumbnailProperties(newhandle, ref props);
 
             return newhandle;
         }

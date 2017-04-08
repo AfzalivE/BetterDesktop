@@ -1,103 +1,94 @@
 using System;
 using System.Runtime.InteropServices;
 
-public static class DWM
-{
-	[DllImport("user32.dll", EntryPoint = "GetWindowPlacement")]
-	private static extern bool InternalGetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);
-	public static bool GetWindowPlacement(IntPtr hWnd, out WindowPlacement placement)
-	{
-		placement = new WindowPlacement();
-		placement.Length = Marshal.SizeOf(typeof(WindowPlacement));
-		return InternalGetWindowPlacement(hWnd, ref placement);
-	}
+public static class DWM {
+    [DllImport("user32.dll", EntryPoint = "GetWindowPlacement")]
+    private static extern bool InternalGetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);
 
-	[DllImport("user32.dll")]
-	public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCmd uCmd);
+    public static bool GetWindowPlacement(IntPtr hWnd, out WindowPlacement placement) {
+        placement = new WindowPlacement();
+        placement.Length = Marshal.SizeOf(typeof(WindowPlacement));
+        return InternalGetWindowPlacement(hWnd, ref placement);
+    }
 
-	[DllImport("user32.dll")]
-	public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCmd uCmd);
 
-	[DllImport("user32.dll")]
-	public static extern IntPtr FindWindow(string classname, string title);
+    [DllImport("user32.dll")]
+    public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
-	[DllImport("user32.dll")]
-	public static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
+    [DllImport("user32.dll")]
+    public static extern IntPtr FindWindow(string classname, string title);
 
-	[DllImport("dwmapi.dll")]
-	public static extern int DwmRegisterThumbnail(IntPtr dest, IntPtr source, out IntPtr hthumbnail);
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowRect(IntPtr hWnd, out Rect lpRect);
 
-	[DllImport("dwmapi.dll")]
-	public static extern int DwmUnregisterThumbnail(IntPtr HThumbnail);
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmRegisterThumbnail(IntPtr dest, IntPtr source, out IntPtr hthumbnail);
 
-	[DllImport("dwmapi.dll")]
-	public static extern int DwmUpdateThumbnailProperties(IntPtr HThumbnail, ref ThumbnailProperties props);
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmUnregisterThumbnail(IntPtr hThumbnail);
 
-	[DllImport("dwmapi.dll")]
-	public static extern int DwmQueryThumbnailSourceSize(IntPtr HThumbnail, out Size size);
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmUpdateThumbnailProperties(IntPtr hThumbnail, ref ThumbnailProperties props);
 
-	public struct Point
-	{
-		public int x;
-		public int y;
-	}
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmQueryThumbnailSourceSize(IntPtr hThumbnail, out Size size);
 
-	public struct Size
-	{
-		public int Width, Height;
-	}
+    public struct Point {
+        public int X;
+        public int Y;
+    }
 
-	public struct WindowPlacement
-	{
-		public int Length;
-		public int Flags;
-		public int ShowCmd;
-		public Point MinPosition;
-		public Point MaxPosition;
-		public Rect NormalPosition;
-	}
+    public struct Size {
+        public int Width, Height;
+    }
 
-	public struct ThumbnailProperties
-	{
-		public ThumbnailFlags Flags;
-		public Rect Destination;
-		public Rect Source;
-		public Byte Opacity;
-		public bool Visible;
-		public bool SourceClientAreaOnly;
-	}
+    public struct WindowPlacement {
+        public int Length;
+        public int Flags;
+        public int ShowCmd;
+        public Point MinPosition;
+        public Point MaxPosition;
+        public Rect NormalPosition;
+    }
 
-	public struct Rect
-	{
-		public Rect(int x, int y, int x1, int y1)
-		{
-			this.Left = x;
-			this.Top = y;
-			this.Right = x1;
-			this.Bottom = y1;
-		}
+    public struct ThumbnailProperties {
+        public ThumbnailFlags Flags;
+        public Rect Destination;
+        public Rect Source;
+        public Byte Opacity;
+        public bool Visible;
+        public bool SourceClientAreaOnly;
+    }
 
-		public int Left, Top, Right, Bottom;
-	}
+    public struct Rect {
+        public Rect(int x, int y, int x1, int y1) {
+            this.Left = x;
+            this.Top = y;
+            this.Right = x1;
+            this.Bottom = y1;
+        }
 
-	[Flags]
-	public enum ThumbnailFlags : int
-	{
-		RectDetination = 1,
-		RectSource = 2,
-		Opacity = 4,
-		Visible = 8,
-		SourceClientAreaOnly = 16
-	}
+        public int Left, Top, Right, Bottom;
+    }
 
-	public enum GetWindowCmd : uint
-	{
-		First = 0,
-		Last = 1,
-		Next = 2,
-		Prev = 3,
-		Owner = 4,
-		Child = 5,
-		EnabledPopup = 6
-	}
+    [Flags]
+    public enum ThumbnailFlags : int {
+        RectDetination = 1,
+        RectSource = 2,
+        Opacity = 4,
+        Visible = 8,
+        SourceClientAreaOnly = 16
+    }
+
+    public enum GetWindowCmd : uint {
+        First = 0,
+        Last = 1,
+        Next = 2,
+        Prev = 3,
+        Owner = 4,
+        Child = 5,
+        EnabledPopup = 6
+    }
 }

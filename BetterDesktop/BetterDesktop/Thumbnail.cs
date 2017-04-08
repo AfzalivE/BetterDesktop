@@ -25,7 +25,7 @@ namespace BetterDesktop {
                 new FrameworkPropertyMetadata(
                     IntPtr.Zero,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    delegate (DependencyObject obj, DependencyPropertyChangedEventArgs args) {
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
                         ((Thumbnail) obj).InitialiseThumbnail((IntPtr) args.NewValue);
                     }));
 
@@ -36,7 +36,7 @@ namespace BetterDesktop {
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    delegate (DependencyObject obj, DependencyPropertyChangedEventArgs args) {
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
                         ((Thumbnail) obj).UpdateThumbnail();
                     }));
 
@@ -45,7 +45,7 @@ namespace BetterDesktop {
                 new FrameworkPropertyMetadata(
                     1.0,
                     FrameworkPropertyMetadataOptions.Inherits,
-                    delegate (DependencyObject obj, DependencyPropertyChangedEventArgs args) {
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
                         ((Thumbnail) obj).UpdateThumbnail();
                     }));
         }
@@ -85,7 +85,7 @@ namespace BetterDesktop {
                     props.SourceClientAreaOnly = this.ClientAreaOnly;
                     props.Opacity = (byte) (255 * this.Opacity);
                     props.Flags = DWM.ThumbnailFlags.Visible | DWM.ThumbnailFlags.SourceClientAreaOnly
-                        | DWM.ThumbnailFlags.Opacity;
+                                  | DWM.ThumbnailFlags.Opacity;
                     DWM.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
             }

@@ -4,17 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BetterDesktop
-{
-    public class Grid
-    {
-        public readonly int width;
-        public readonly int height;
+namespace BetterDesktop {
+    public class Grid {
+        public readonly int Width;
+        public readonly int Height;
 
-        public Grid(int width, int height)
-        {
-            this.width = width;
-            this.height = height;
+        public Grid(int width, int height) {
+            this.Width = width;
+            this.Height = height;
         }
     }
 }

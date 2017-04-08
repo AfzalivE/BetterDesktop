@@ -2,19 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WindowsDesktop;
 
 namespace BetterDesktop {
@@ -23,10 +12,12 @@ namespace BetterDesktop {
     /// </summary>
     public partial class MainWindow : Window {
         readonly WindowInteropHelper _wih;
-        private ObservableCollection<KeyValuePair<string, IntPtr>> AvailableWindows = new ObservableCollection<KeyValuePair<string, IntPtr>>();
 
-        Dictionary<IntPtr, IntPtr> DWMHandles = new Dictionary<IntPtr, IntPtr>();
-        Dictionary<Guid, VirtualDesktop> Desktops = new Dictionary<Guid, VirtualDesktop>();
+        private ObservableCollection<KeyValuePair<string, IntPtr>> _availableWindows =
+            new ObservableCollection<KeyValuePair<string, IntPtr>>();
+
+        private readonly Dictionary<IntPtr, IntPtr> _dwmHandles = new Dictionary<IntPtr, IntPtr>();
+        private readonly Dictionary<Guid, VirtualDesktop> _desktops = new Dictionary<Guid, VirtualDesktop>();
 
         public MainWindow() {
             InitializeComponent();
@@ -41,7 +32,7 @@ namespace BetterDesktop {
             CreateDesktopGrid();
 
             // WINDOWS
-            Loaded += onWindowLoaded;
+            Loaded += OnWindowLoaded;
         }
 
         private void CreateDesktopGrid() {
@@ -56,11 +47,11 @@ namespace BetterDesktop {
 
             for (int i = 0; i < desktops.Length; i++) {
                 VirtualDesktop desktop = desktops[i];
-                Desktops.Add(desktop.Id, desktop);
+                _desktops.Add(desktop.Id, desktop);
             }
         }
 
-        private void onWindowLoaded(object sender, RoutedEventArgs e) {
+        private void OnWindowLoaded(object sender, RoutedEventArgs e) {
             LoadWindows();
         }
 
@@ -71,11 +62,11 @@ namespace BetterDesktop {
                 Console.WriteLine(entry.Value);
             }
 
-            Grid grid = createGrid(windows.Count());
-            showWindows(windows, grid);
+            Grid grid = CreateGrid(windows.Count());
+            ShowWindows(windows, grid);
         }
 
-        private Grid createGrid(int numWindows) {
+        private static Grid CreateGrid(int numWindows) {
             //  handle zero case
             if (numWindows == 0) {
                 return new Grid(1, 1);
@@ -88,16 +79,17 @@ namespace BetterDesktop {
             return new Grid(w, h);
         }
 
-        void showWindows(Dictionary<IntPtr, string> windows, Grid grid) {
+        void ShowWindows(Dictionary<IntPtr, string> windows, Grid grid) {
             // figure out width and height per item
-            double widthPerItem = this.Width / grid.width;
-            double heightPerItem = this.Height / grid.height;
+            double widthPerItem = this.Width / grid.Width;
+            double heightPerItem = this.Height / grid.Height;
 
             Dictionary<IntPtr, string>.Enumerator e = windows.GetEnumerator();
 
-            for (int hi = 0; hi < grid.height; hi++) {
-                for (int wi = 0; wi < grid.width; wi++) {
+            for (int hi = 0; hi < grid.Height; hi++) {
+                for (int wi = 0; wi < grid.Width; wi++) {
                     if (!e.MoveNext()) {
+                        e.Dispose();
                         break;
                     }
                     KeyValuePair<IntPtr, string> entry = e.Current;
@@ -105,23 +97,23 @@ namespace BetterDesktop {
                     int startYPos = (int) (hi * heightPerItem);
                     int endXPos = (int) ((wi + 1) * widthPerItem);
                     int endYPos = (int) ((hi + 1) * heightPerItem);
-                    drawRectForWindow(entry.Key, startXPos, startYPos, endXPos, endYPos);
+                    DrawRectForWindow(entry.Key, startXPos, startYPos, endXPos, endYPos);
                 }
             }
         }
 
-        void drawRectForWindow(IntPtr handle, int left, int top, int right, int bottom) {
+        private void DrawRectForWindow(IntPtr handle, int left, int top, int right, int bottom) {
             var thisHandle = new WindowInteropHelper(this).Handle;
             var rect = new Rect(left, top, right, bottom);
             var scale = GetSystemScale();
             //var scaledRect = new Rect(0, 0, (int)(this.ActualWidth * scale), (int)(this.ActualHeight * scale));
             IntPtr dwmHandle;
-            if (!DWMHandles.TryGetValue(handle, out dwmHandle)) {
+            if (!_dwmHandles.TryGetValue(handle, out dwmHandle)) {
                 dwmHandle = IntPtr.Zero;
             }
 
             dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, rect);
-            DWMHandles.Add(handle, dwmHandle);
+            _dwmHandles.Add(handle, dwmHandle);
         }
 
         public double GetSystemScale() {
