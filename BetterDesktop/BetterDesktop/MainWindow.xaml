@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BetterDesktop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow"
+        >
     <Grid>
-        <ComboBox x:Name="comboBox" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="250" SelectionChanged="comboBox_SelectionChanged"/>
     </Grid>
 </Window>

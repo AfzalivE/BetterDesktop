@@ -27,11 +27,17 @@ namespace BetterDesktop
         readonly WindowInteropHelper _wih;
         private ObservableCollection<KeyValuePair<string, IntPtr>> AvailableWindows = new ObservableCollection<KeyValuePair<string, IntPtr>>();
 
-        public IntPtr DWMHandle { get; private set; }
+        public Dictionary<IntPtr, IntPtr> DWMHandles { get; private set; } = new Dictionary<IntPtr, IntPtr>();
 
         public MainWindow()
         {
             InitializeComponent();
+            this.WindowStyle = WindowStyle.None;
+            //this.WindowState = WindowState.Maximized;
+            this.Left = 0;
+            this.Top = 0;
+            this.Height = SystemParameters.MaximizedPrimaryScreenHeight;
+            this.Width = SystemParameters.MaximizedPrimaryScreenWidth;
             //RegisterHotkeys();
 
             //var desktops = VirtualDesktop.GetDesktops();
@@ -45,56 +51,82 @@ namespace BetterDesktop
             //}
 
             // WINDOWS
-            RefreshWindows();
-
+            Loaded += onWindowLoaded;
         }
 
-        void RefreshWindows()
+        private void onWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            LoadWindows();
+        }
+
+        private void LoadWindows()
         {
             Dictionary<IntPtr, string> windows = Utils.LoadWindows();
 
-            comboBox.ItemsSource = windows.Select(x => $"{x.Key};{x.Value}").ToArray();
-            SynchronizationContext context = SynchronizationContext.Current;
-
-            Task.Delay(1000).ContinueWith(t =>
+            foreach (KeyValuePair<IntPtr, string> entry in windows)
             {
-
-                context.Post(ignore =>
-                {
-                    foreach (KeyValuePair<IntPtr, string> entry in windows)
-                    {
-                        // do something with entry.Value or entry.Key
-
-                        //Console.WriteLine("IntPtr: {0} on Desktop {1}", entry.Key, desktop.Id);
-
-                        //drawRectForWindow(entry.Key);
-                        //break;
-                    }
-                }, null);
-            });
-
-        }
-
-        void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var cb = sender as ComboBox;
-            var thisHandle = new WindowInteropHelper(this).Handle;
-            var handle = new IntPtr(int.Parse(cb.SelectedItem.ToString().Split(';')[0]));
-            var desktop = VirtualDesktop.FromHwnd(handle);
-            if (desktop != null)
-            {
-                Console.WriteLine("IntPtr: {0} on Desktop {1}", handle, desktop.Id);
+                Console.WriteLine(entry.Value);
             }
-            drawRectForWindow(handle);
+
+            Grid grid = createGrid(windows.Count());
+            showWindows(windows, grid);
         }
 
-        void drawRectForWindow(IntPtr handle)
+        private Grid createGrid(int numWindows)
+        {
+            //  handle zero case
+            if (numWindows == 0)
+            {
+                return new Grid(1, 1);
+            }
+            int w = (int)Math.Ceiling(Math.Sqrt(numWindows));
+            int h = numWindows > w * (w - 1) ? w : w - 1;
+
+            Console.WriteLine("For {2} = Grid: {0} x {1}", w, h, numWindows);
+
+            return new Grid(w, h);
+        }
+
+        void showWindows(Dictionary<IntPtr, string> windows, Grid grid)
+        {
+            // figure out width and height per item
+            double widthPerItem = this.Width / grid.width;
+            double heightPerItem = this.Height / grid.height;
+
+            Dictionary<IntPtr, string>.Enumerator e = windows.GetEnumerator();
+
+            for (int hi = 0; hi < grid.height; hi++)
+            {
+                for (int wi = 0; wi < grid.width; wi++)
+                {
+                    if (!e.MoveNext())
+                    {
+                        break;
+                    }
+                    KeyValuePair<IntPtr, string> entry = e.Current;
+                    int startXPos = (int)(wi * widthPerItem);
+                    int startYPos = (int)(hi * heightPerItem);
+                    int endXPos = (int)((wi + 1) * widthPerItem);
+                    int endYPos = (int)((hi + 1) * heightPerItem);
+                    drawRectForWindow(entry.Key, startXPos, startYPos, endXPos, endYPos);
+                }
+            }
+        }
+
+        void drawRectForWindow(IntPtr handle, int left, int top, int right, int bottom)
         {
             var thisHandle = new WindowInteropHelper(this).Handle;
-            var rect = new Rect(0, 0, (int)this.ActualWidth, (int)this.ActualHeight);
+            var rect = new Rect(left, top, right, bottom);
             var scale = GetSystemScale();
-            var scaledRect = new Rect(0, 0, (int)(this.ActualWidth * scale), (int)(this.ActualHeight * scale));
-            DWMHandle = Utils.CreateThumbnail(thisHandle, handle, DWMHandle, scaledRect);
+            //var scaledRect = new Rect(0, 0, (int)(this.ActualWidth * scale), (int)(this.ActualHeight * scale));
+            IntPtr dwmHandle;
+            if (!DWMHandles.TryGetValue(handle, out dwmHandle))
+            {
+                dwmHandle = IntPtr.Zero;
+            }
+
+            dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, rect);
+            DWMHandles.Add(handle, dwmHandle);
         }
 
         public double GetSystemScale()

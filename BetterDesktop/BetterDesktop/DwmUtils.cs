@@ -44,6 +44,25 @@ namespace BetterDesktop
         public int y;
     }
 
+    enum DWMWINDOWATTRIBUTE : uint
+    {
+        NCRenderingEnabled = 1,
+        NCRenderingPolicy,
+        TransitionsForceDisabled,
+        AllowNCPaint,
+        CaptionButtonBounds,
+        NonClientRtlLayout,
+        ForceIconicRepresentation,
+        Flip3DPolicy,
+        ExtendedFrameBounds,
+        HasIconicBitmap,
+        DisallowPeek,
+        ExcludedFromPeek,
+        Cloak,
+        Cloaked,
+        FreezeRepresentation
+    }
+
     #endregion
 
     public static class Utils
@@ -79,6 +98,10 @@ namespace BetterDesktop
         [DllImport("dwmapi.dll")]
         static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
 
+        [DllImport("dwmapi.dll")]
+        static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
+
+
         #endregion
 
         #region Win32 helper functions
@@ -108,7 +131,14 @@ namespace BetterDesktop
                 {
                     var sb = new StringBuilder(100);
                     GetWindowText(hwnd, sb, sb.Capacity);
-                    ret.Add(hwnd, sb.ToString());
+                    if (IsInvisibleWin10BackgroundAppWindow(hwnd))
+                    {
+                        Console.WriteLine("Ignoring invisible window: {0}", sb);
+                    }
+                    else
+                    {
+                        ret.Add(hwnd, sb.ToString());
+                    }
                 }
 
                 return true; //continue enumeration
@@ -116,6 +146,17 @@ namespace BetterDesktop
             , 0);
 
             return ret;
+        }
+
+        static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd)
+        {
+            bool CloakedVal;
+            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out CloakedVal, Marshal.SizeOf(typeof(bool)));
+            if (hRes != 0)
+            {
+                CloakedVal = false;
+            }
+            return CloakedVal;
         }
 
         public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest)
