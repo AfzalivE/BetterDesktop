@@ -27,7 +27,8 @@ namespace BetterDesktop
         readonly WindowInteropHelper _wih;
         private ObservableCollection<KeyValuePair<string, IntPtr>> AvailableWindows = new ObservableCollection<KeyValuePair<string, IntPtr>>();
 
-        public Dictionary<IntPtr, IntPtr> DWMHandles { get; private set; } = new Dictionary<IntPtr, IntPtr>();
+        Dictionary<IntPtr, IntPtr> DWMHandles = new Dictionary<IntPtr, IntPtr>();
+        Dictionary<Guid, VirtualDesktop> Desktops = new Dictionary<Guid, VirtualDesktop>();
 
         public MainWindow()
         {
@@ -40,18 +41,29 @@ namespace BetterDesktop
             this.Width = SystemParameters.MaximizedPrimaryScreenWidth;
             //RegisterHotkeys();
 
-            //var desktops = VirtualDesktop.GetDesktops();
-            //int len = desktops.Length;
-
-            //Console.WriteLine("Found {0} desktops", len);
-
-            //for (int i = 0; i < desktops.Length; i++)
-            //{
-            //    //VirtualDesktop desktop = desktops[i];
-            //}
+            CreateDesktopGrid();
 
             // WINDOWS
             Loaded += onWindowLoaded;
+        }
+
+        private void CreateDesktopGrid()
+        {
+            var desktops = VirtualDesktop.GetDesktops();
+            int len = desktops.Length;
+
+            Console.WriteLine("Found {0} desktops", len);
+
+            if (len != 9)
+            {
+                // Need 9 desktops for now, until dynamic # is allowed
+            }
+
+            for (int i = 0; i < desktops.Length; i++)
+            {
+                VirtualDesktop desktop = desktops[i];
+                Desktops.Add(desktop.Id, desktop);
+            }
         }
 
         private void onWindowLoaded(object sender, RoutedEventArgs e)
