@@ -17,14 +17,14 @@
         HorizontalAlignment="Stretch" 
         Rows="3"
         Columns="3">
-        <Rectangle Margin="10,10" Grid.Column="0" Grid.Row="0" />
-        <Rectangle Margin="10,10" Grid.Column="1" Grid.Row="0"/>
-        <Rectangle Margin="10,10" Grid.Column="2" Grid.Row="0"/>
-        <Rectangle Margin="10,10" Grid.Column="0" Grid.Row="1"/>
-        <Rectangle Margin="10,10" Grid.Column="1" Grid.Row="1"/>
-        <Rectangle Margin="10,10" Grid.Column="2" Grid.Row="1"/>
-        <Rectangle Margin="10,10" Grid.Column="0" Grid.Row="2"/>
-        <Rectangle Margin="10,10" Grid.Column="1" Grid.Row="2"/>
-        <Rectangle Margin="10,10" Grid.Column="2" Grid.Row="2"/>
+        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="0" />
+        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="0"/>
+        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="0"/>
+        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="1"/>
+        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="1"/>
+        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="1"/>
+        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="2"/>
+        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="2"/>
+        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="2"/>
     </UniformGrid>
 </Window>

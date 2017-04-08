@@ -5,13 +5,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BetterDesktop
-{
+namespace BetterDesktop {
     #region Helper structs
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct DWM_THUMBNAIL_PROPERTIES
-    {
+    public struct DWM_THUMBNAIL_PROPERTIES {
         public int dwFlags;
         public Rect rcDestination;
         public Rect rcSource;
@@ -21,10 +19,8 @@ namespace BetterDesktop
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct Rect
-    {
-        public Rect(int left, int top, int right, int bottom)
-        {
+    public struct Rect {
+        public Rect(int left, int top, int right, int bottom) {
             Left = left;
             Top = top;
             Right = right;
@@ -38,14 +34,12 @@ namespace BetterDesktop
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct PSIZE
-    {
+    public struct PSIZE {
         public int x;
         public int y;
     }
 
-    enum DWMWINDOWATTRIBUTE : uint
-    {
+    enum DWMWINDOWATTRIBUTE : uint {
         NCRenderingEnabled = 1,
         NCRenderingPolicy,
         TransitionsForceDisabled,
@@ -65,8 +59,7 @@ namespace BetterDesktop
 
     #endregion
 
-    public static class Utils
-    {
+    public static class Utils {
         #region Constants
 
         public static readonly int DWM_TNP_RECTDESTINATION = 0x00000001;
@@ -121,22 +114,16 @@ namespace BetterDesktop
 
         #endregion
 
-        public static Dictionary<IntPtr, string> LoadWindows()
-        {
+        public static Dictionary<IntPtr, string> LoadWindows() {
             var ret = new Dictionary<IntPtr, string>();
 
-            EnumWindows((hwnd, lParam) =>
-            {
-                if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW)
-                {
+            EnumWindows((hwnd, lParam) => {
+                if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW) {
                     var sb = new StringBuilder(100);
                     GetWindowText(hwnd, sb, sb.Capacity);
-                    if (IsInvisibleWin10BackgroundAppWindow(hwnd))
-                    {
+                    if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
                         Console.WriteLine("Ignoring invisible window: {0}", sb);
-                    }
-                    else
-                    {
+                    } else {
                         ret.Add(hwnd, sb.ToString());
                     }
                 }
@@ -148,19 +135,16 @@ namespace BetterDesktop
             return ret;
         }
 
-        static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd)
-        {
+        static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd) {
             bool CloakedVal;
             int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out CloakedVal, Marshal.SizeOf(typeof(bool)));
-            if (hRes != 0)
-            {
+            if (hRes != 0) {
                 CloakedVal = false;
             }
             return CloakedVal;
         }
 
-        public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest)
-        {
+        public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest) {
             if (oldHandle != IntPtr.Zero)
                 DwmUnregisterThumbnail(oldHandle);
 
@@ -168,8 +152,7 @@ namespace BetterDesktop
 
             int ret = DwmRegisterThumbnail(destination, source, out newhandle);
 
-            if (ret == 0)
-            {
+            if (ret == 0) {
                 var props = new DWM_THUMBNAIL_PROPERTIES();
 
                 props.dwFlags =
