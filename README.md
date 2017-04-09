@@ -35,7 +35,7 @@ https://github.com/Grabacr07/VirtualDesktop/
 ### The Windows
 
 - Get all windows, and show their thumbnails in the desktops they belong
-- Blacklist BetterDesktop for this, since it's also creating a window and we don't want a stack overflow
+- Blacklist BetterDesktop for this, since it's also creating a window and we don't want a stack overflow (Using EnumWindows skips the caller automatically)
 - (Later) Clicking a window switches to that desktop and brings that window to the top
 
 Note: The VirtualDesktop library allows querying which desktop a window ptr belongs to
