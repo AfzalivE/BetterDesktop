@@ -5,9 +5,9 @@ using WindowsDesktop;
 
 namespace BetterDesktop {
     public class Desktop {
-        private Guid Id;
-        private List<Window> windows;
-        private VirtualDesktop desktop;
-        private UIElement desktopElement;
+        public Guid Id;
+        public List<WindowItem> windows = new List<WindowItem>();
+        public VirtualDesktop desktop;
+        public UIElement desktopElement;
     }
 }
