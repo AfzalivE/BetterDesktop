@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using WindowsDesktop;
 
 namespace BetterDesktop {
     #region Helper structs
@@ -124,12 +125,12 @@ namespace BetterDesktop {
 
                     StringBuilder sb = new StringBuilder(100);
                     GetWindowText(hwnd, sb, sb.Capacity);
-//                    if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
+                    if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
                         Console.WriteLine("Ignoring invisible window: {0}", sb);
-//                    }
-//                    else {
+                    }
+                    else {
                         ret.Add(hwnd, sb.ToString());
-//                    }
+                    }
 
                     return true; //continue enumeration
                 }
@@ -138,13 +139,8 @@ namespace BetterDesktop {
             return ret;
         }
 
-        static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd) {
-            bool cloakedVal;
-            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out cloakedVal, Marshal.SizeOf(typeof(bool)));
-            if (hRes != 0) {
-                cloakedVal = false;
-            }
-            return cloakedVal;
+        private static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd) {
+            return VirtualDesktop.FromHwnd(hWnd) == null;
         }
 
         public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest) {
