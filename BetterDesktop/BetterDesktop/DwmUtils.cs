@@ -125,6 +125,7 @@ namespace BetterDesktop {
 
                     StringBuilder sb = new StringBuilder(100);
                     GetWindowText(hwnd, sb, sb.Capacity);
+//                    Console.WriteLine("Getting window: {0} : {1}", hwnd, sb.ToString());
                     if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
                         Console.WriteLine("Ignoring invisible window: {0}", sb);
                     }

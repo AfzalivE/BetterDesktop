@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Interop;
-using System.Windows.Media;
 using WindowsDesktop;
 
 namespace BetterDesktop {
@@ -63,7 +59,7 @@ namespace BetterDesktop {
                 VirtualDesktop vDesktop = vDesktops[i];
                 var desktop = new Desktop() {
                     Id = vDesktop.Id,
-                    desktop = vDesktop,
+                    vDesktop = vDesktop,
                     desktopElement = desktopGridChildren[i]
                 };
                 desktopsDict.Add(vDesktop.Id, desktop);
@@ -76,10 +72,10 @@ namespace BetterDesktop {
             Dictionary<IntPtr, string> windows = Utils.LoadWindows();
 
             foreach (KeyValuePair<IntPtr, string> entry in windows) {
-                Console.WriteLine(entry.Value);
                 var vDesktop = VirtualDesktop.FromHwnd(entry.Key);
                 if (vDesktop == null) {
                     continue;
+//                    vDesktop = VirtualDesktop.Current; // show in current desktop as fallback ??
                 }
 
                 Desktop desktop;
@@ -129,8 +125,7 @@ namespace BetterDesktop {
                         continue;
                     }
 
-                    VirtualDesktop virtualDesktop = VirtualDesktop.FromHwnd(entry.handle);
-                    Console.WriteLine("At Window: {0}, in Desktop: {1}", entry.title, virtualDesktop);
+                    Console.WriteLine("Window: {0}, in Desktop: {1}", entry.title, desktop.Id);
 
                     UIElement desktopElement = desktop.desktopElement;
 
@@ -154,15 +149,15 @@ namespace BetterDesktop {
 
         private void DrawRectForWindow(IntPtr handle, int left, int top, int right, int bottom) {
             IntPtr thisHandle = _wih.Handle;
-            Rect rect = new Rect(left, top, right, bottom);
             double scale = GetSystemScale();
-            //var scaledRect = new Rect(0, 0, (int)(this.ActualWidth * scale), (int)(this.ActualHeight * scale));
+            // TODO keep original window aspect ratio
+            var scaledRect = new Rect((int)(left * scale), (int) (top * scale), (int)(right * scale), (int)(bottom * scale));
             IntPtr dwmHandle;
             if (!_dwmHandles.TryGetValue(handle, out dwmHandle)) {
                 dwmHandle = IntPtr.Zero;
             }
 
-            dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, rect);
+            dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, scaledRect);
             _dwmHandles.Add(handle, dwmHandle);
         }
 
