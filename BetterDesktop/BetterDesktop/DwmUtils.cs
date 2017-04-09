@@ -110,6 +110,9 @@ namespace BetterDesktop {
         [DllImport("user32.dll")]
         public static extern void GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        [DllImport("user32.dll", SetLastError=true)]
+        public static extern bool GetWindowRect(IntPtr hwnd, out Rect lpRect);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 

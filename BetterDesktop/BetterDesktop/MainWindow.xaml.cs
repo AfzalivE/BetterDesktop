@@ -85,10 +85,18 @@ namespace BetterDesktop {
                     return;
                 }
 
-                desktop.windows.Add(new WindowItem() {
+
+                var windowItem = new WindowItem() {
                     handle = entry.Key,
                     title = entry.Value
-                });
+                };
+
+                Rect windowRect;
+                if (Utils.GetWindowRect(entry.Key, out windowRect)) {
+                    windowItem.windowRect = windowRect;
+                }
+
+                desktop.windows.Add(windowItem);
             }
 
             foreach (var desktop in desktops) {
@@ -142,23 +150,37 @@ namespace BetterDesktop {
                     int startYPos = (int) (hi * heightPerItem + y);
                     int endXPos = (int) ((wi + 1) * widthPerItem + x);
                     int endYPos = (int) ((hi + 1) * heightPerItem + y);
-                    DrawRectForWindow(entry.handle, startXPos, startYPos, endXPos, endYPos);
+                    DrawRectForWindow(entry, startXPos, startYPos, endXPos, endYPos);
                 }
             }
         }
 
-        private void DrawRectForWindow(IntPtr handle, int left, int top, int right, int bottom) {
+        private void DrawRectForWindow(WindowItem window, int left, int top, int right, int bottom) {
             IntPtr thisHandle = _wih.Handle;
             double scale = GetSystemScale();
-            // TODO keep original window aspect ratio
-            var scaledRect = new Rect((int)(left * scale), (int) (top * scale), (int)(right * scale), (int)(bottom * scale));
+            // keep original window aspect ratio
+            var windowRect = window.windowRect;
+            double windowWidth = windowRect.Right - windowRect.Left;
+            double windowHeight = windowRect.Bottom - windowRect.Top;
+
+            double rectHeight = bottom - top;
+            double scaleFactor = rectHeight / windowHeight;
+
+            windowHeight = scaleFactor * windowHeight;
+            windowWidth = scaleFactor * windowWidth;
+
+            // origins remain the same as provided
+            var rect = new Rect((int)(left), (int) (top), (int)(left + windowWidth), (int)(top + windowHeight));
+
+            var scaledRect = new Rect((int)(left * scale), (int) (top * scale), (int)((left + windowWidth) * scale), (int)((top + windowHeight) * scale));
             IntPtr dwmHandle;
-            if (!_dwmHandles.TryGetValue(handle, out dwmHandle)) {
+
+            if (!_dwmHandles.TryGetValue(window.handle, out dwmHandle)) {
                 dwmHandle = IntPtr.Zero;
             }
 
-            dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, scaledRect);
-            _dwmHandles.Add(handle, dwmHandle);
+            dwmHandle = Utils.CreateThumbnail(thisHandle, window.handle, dwmHandle, scaledRect);
+            _dwmHandles.Add(window.handle, dwmHandle);
         }
 
         public double GetSystemScale() {
