@@ -170,9 +170,9 @@ namespace BetterDesktop {
             windowWidth = scaleFactor * windowWidth;
 
             // origins remain the same as provided
-            var rect = new Rect((int)(left), (int) (top), (int)(left + windowWidth), (int)(top + windowHeight));
+            var rect = new Rect((int) (left), (int) (top), (int) (left + windowWidth), (int) (top + windowHeight));
 
-            var scaledRect = new Rect((int)(left * scale), (int) (top * scale), (int)((left + windowWidth) * scale), (int)((top + windowHeight) * scale));
+            var scaledRect = new Rect((int) (left * scale), (int) (top * scale), (int) ((left + windowWidth) * scale), (int) ((top + windowHeight) * scale));
             IntPtr dwmHandle;
 
             if (!_dwmHandles.TryGetValue(window.handle, out dwmHandle)) {

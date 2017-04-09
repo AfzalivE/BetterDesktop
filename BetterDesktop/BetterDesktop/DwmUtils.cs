@@ -110,7 +110,7 @@ namespace BetterDesktop {
         [DllImport("user32.dll")]
         public static extern void GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
-        [DllImport("user32.dll", SetLastError=true)]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowRect(IntPtr hwnd, out Rect lpRect);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -131,8 +131,7 @@ namespace BetterDesktop {
 //                    Console.WriteLine("Getting window: {0} : {1}", hwnd, sb.ToString());
                     if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
                         Console.WriteLine("Ignoring invisible window: {0}", sb);
-                    }
-                    else {
+                    } else {
                         ret.Add(hwnd, sb.ToString());
                     }
 

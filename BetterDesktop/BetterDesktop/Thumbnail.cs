@@ -25,9 +25,7 @@ namespace BetterDesktop {
                 new FrameworkPropertyMetadata(
                     IntPtr.Zero,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
-                        ((Thumbnail) obj).InitialiseThumbnail((IntPtr) args.NewValue);
-                    }));
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) { ((Thumbnail) obj).InitialiseThumbnail((IntPtr) args.NewValue); }));
 
             ClientAreaOnlyProperty = DependencyProperty.Register(
                 "ClientAreaOnly",
@@ -36,18 +34,14 @@ namespace BetterDesktop {
                 new FrameworkPropertyMetadata(
                     false,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
-                        ((Thumbnail) obj).UpdateThumbnail();
-                    }));
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) { ((Thumbnail) obj).UpdateThumbnail(); }));
 
             OpacityProperty.OverrideMetadata(
                 typeof(Thumbnail),
                 new FrameworkPropertyMetadata(
                     1.0,
                     FrameworkPropertyMetadataOptions.Inherits,
-                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) {
-                        ((Thumbnail) obj).UpdateThumbnail();
-                    }));
+                    delegate(DependencyObject obj, DependencyPropertyChangedEventArgs args) { ((Thumbnail) obj).UpdateThumbnail(); }));
         }
 
         public IntPtr Source {
