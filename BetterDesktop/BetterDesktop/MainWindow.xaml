@@ -7,24 +7,23 @@
         mc:Ignorable="d"
         Title="MainWindow"
         AllowsTransparency="True"
-        Opacity="0.5"
-        >
-    <UniformGrid 
+        Opacity="0.5">
+    <UniformGrid
         Name="DesktopGrid"
-        Height="Auto" 
-        Width="Auto" 
+        Height="Auto"
+        Width="Auto"
         VerticalAlignment="Stretch"
-        HorizontalAlignment="Stretch" 
+        HorizontalAlignment="Stretch"
         Rows="3"
         Columns="3">
-        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="0" />
-        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="0"/>
-        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="0"/>
-        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="1"/>
-        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="1"/>
-        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="1"/>
-        <local:Desktop Margin="10,10" Grid.Column="0" Grid.Row="2"/>
-        <local:Desktop Margin="10,10" Grid.Column="1" Grid.Row="2"/>
-        <local:Desktop Margin="10,10" Grid.Column="2" Grid.Row="2"/>
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="0" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="0" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="0" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="1" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="1" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="1" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="2" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="2" />
+        <local:Desktop BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="2" />
     </UniformGrid>
 </Window>

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Media;
 using WindowsDesktop;
 
 namespace BetterDesktop {
@@ -17,10 +19,10 @@ namespace BetterDesktop {
             new ObservableCollection<KeyValuePair<string, IntPtr>>();
 
         private readonly Dictionary<IntPtr, IntPtr> _dwmHandles = new Dictionary<IntPtr, IntPtr>();
-        private readonly Dictionary<Guid, VirtualDesktop> _desktops = new Dictionary<Guid, VirtualDesktop>();
 
         public MainWindow() {
             InitializeComponent();
+            _wih = new WindowInteropHelper(this);
             this.WindowStyle = WindowStyle.None;
             //this.WindowState = WindowState.Maximized;
             this.Left = 0;
@@ -29,41 +31,72 @@ namespace BetterDesktop {
             this.Width = SystemParameters.MaximizedPrimaryScreenWidth;
             //RegisterHotkeys();
 
-            CreateDesktopGrid();
-
             // WINDOWS
             Loaded += OnWindowLoaded;
         }
 
-        private void CreateDesktopGrid() {
-            var desktops = VirtualDesktop.GetDesktops();
-            int len = desktops.Length;
+        private Dictionary<Guid, UIElement> CreateDesktopGrid() {
+            Dictionary<Guid, UIElement> desktopsDict = new Dictionary<Guid, UIElement>();
+            var desktopGridChildren = DesktopGrid.Children;
+            VirtualDesktop[] desktops = VirtualDesktop.GetDesktops();
+            int desktopsLength = desktops.Length;
 
-            Console.WriteLine("Found {0} desktops", len);
+            Console.WriteLine("Found {0} desktops", desktopsLength);
 
-            if (len != 9) {
+            if (desktopsLength != 9 || desktopGridChildren.Count != 9) {
                 // Need 9 desktops for now, until dynamic # is allowed
+                var errorMsg = "Didn't find 9 desktops, or 9 items in the desktop grid, exiting.";
+                Console.WriteLine(errorMsg);
+                MessageBox.Show(this, errorMsg);
+                Application.Current.Shutdown();
+                return desktopsDict;
             }
 
-            for (int i = 0; i < desktops.Length; i++) {
+            // TODO automatically populate the grid with desktopLength
+            int minLen = Math.Min(desktopsLength, desktopGridChildren.Count);
+
+            for (int i = 0; i < minLen; i++) {
                 VirtualDesktop desktop = desktops[i];
-                _desktops.Add(desktop.Id, desktop);
+                desktopsDict.Add(desktop.Id, desktopGridChildren[i]);
             }
+
+            return desktopsDict;
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e) {
-            LoadWindows();
+            var desktopGrid = CreateDesktopGrid();
+
+            LoadWindows(desktopGrid);
         }
 
-        private void LoadWindows() {
+        private void LoadWindows(Dictionary<Guid, UIElement> desktopGrid) {
             Dictionary<IntPtr, string> windows = Utils.LoadWindows();
+            Dictionary<Guid, int> windowCounts =
+                new Dictionary<Guid, int>(desktopGrid.Count); // number of windows in each desktop, to create the correct grid
 
             foreach (KeyValuePair<IntPtr, string> entry in windows) {
                 Console.WriteLine(entry.Value);
+                var vDesktop = VirtualDesktop.FromHwnd(entry.Key);
+                if (vDesktop == null) {
+                    continue;
+                }
+
+                int count;
+                windowCounts.TryGetValue(vDesktop.Id, out count);
+
+                count = count + 1;
+                windowCounts[vDesktop.Id] = count;
             }
 
-            Grid grid = CreateGrid(windows.Count());
-            ShowWindows(windows, grid);
+            foreach (var desktop in desktopGrid) {
+                int count;
+                if (!windowCounts.TryGetValue(desktop.Key, out count)) {
+                    continue;
+                }
+
+                Grid grid = CreateGrid(windowCounts[desktop.Key]);
+                ShowWindowsInDesktop(windows, grid, desktop);
+            }
         }
 
         private static Grid CreateGrid(int numWindows) {
@@ -79,11 +112,7 @@ namespace BetterDesktop {
             return new Grid(w, h);
         }
 
-        void ShowWindows(Dictionary<IntPtr, string> windows, Grid grid) {
-            // figure out width and height per item
-            double widthPerItem = this.Width / grid.Width;
-            double heightPerItem = this.Height / grid.Height;
-
+        void ShowWindowsInDesktop(Dictionary<IntPtr, string> windows, Grid grid, KeyValuePair<Guid, UIElement> desktopElement) {
             Dictionary<IntPtr, string>.Enumerator e = windows.GetEnumerator();
 
             for (int hi = 0; hi < grid.Height; hi++) {
@@ -93,19 +122,41 @@ namespace BetterDesktop {
                         break;
                     }
                     KeyValuePair<IntPtr, string> entry = e.Current;
-                    int startXPos = (int) (wi * widthPerItem);
-                    int startYPos = (int) (hi * heightPerItem);
-                    int endXPos = (int) ((wi + 1) * widthPerItem);
-                    int endYPos = (int) ((hi + 1) * heightPerItem);
+
+                    VirtualDesktop virtualDesktop = VirtualDesktop.FromHwnd(entry.Key);
+                    Console.WriteLine("At Window: {0}, in Desktop: {1}", entry.Value, virtualDesktop);
+                    if (virtualDesktop == null) {
+                        continue;
+                    }
+
+                    if (virtualDesktop.Id != desktopElement.Key) {
+                        continue; // this window doesn't belong in this desktop
+                    }
+
+                    UIElement desktop = desktopElement.Value;
+
+                    double parentWidth = desktop.RenderSize.Width;
+                    double parentHeight = desktop.RenderSize.Height;
+                    Point origin = desktop.TransformToAncestor(this).Transform(new Point(0, 0));
+                    double x = origin.X;
+                    double y = origin.Y;
+                    // figure out width and height per item
+                    double widthPerItem = parentWidth / grid.Width;
+                    double heightPerItem = parentHeight / grid.Height;
+
+                    int startXPos = (int) (wi * widthPerItem + x);
+                    int startYPos = (int) (hi * heightPerItem + y);
+                    int endXPos = (int) ((wi + 1) * widthPerItem + x);
+                    int endYPos = (int) ((hi + 1) * heightPerItem + y);
                     DrawRectForWindow(entry.Key, startXPos, startYPos, endXPos, endYPos);
                 }
             }
         }
 
         private void DrawRectForWindow(IntPtr handle, int left, int top, int right, int bottom) {
-            var thisHandle = new WindowInteropHelper(this).Handle;
-            var rect = new Rect(left, top, right, bottom);
-            var scale = GetSystemScale();
+            IntPtr thisHandle = _wih.Handle;
+            Rect rect = new Rect(left, top, right, bottom);
+            double scale = GetSystemScale();
             //var scaledRect = new Rect(0, 0, (int)(this.ActualWidth * scale), (int)(this.ActualHeight * scale));
             IntPtr dwmHandle;
             if (!_dwmHandles.TryGetValue(handle, out dwmHandle)) {
@@ -117,7 +168,7 @@ namespace BetterDesktop {
         }
 
         public double GetSystemScale() {
-            var dpi = 1.0;
+            double dpi = 1.0;
             using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromHwnd(IntPtr.Zero)) {
                 dpi = graphics.DpiX / 96.0;
             }

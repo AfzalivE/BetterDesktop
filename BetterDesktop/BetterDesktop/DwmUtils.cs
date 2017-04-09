@@ -92,8 +92,7 @@ namespace BetterDesktop {
         static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DwmThumbnailProperties props);
 
         [DllImport("dwmapi.dll")]
-        static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute,
-            int cbAttribute);
+        static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out bool pvAttribute, int cbAttribute);
 
         #endregion
 
@@ -116,19 +115,21 @@ namespace BetterDesktop {
         #endregion
 
         public static Dictionary<IntPtr, string> LoadWindows() {
-            var ret = new Dictionary<IntPtr, string>();
+            Dictionary<IntPtr, string> ret = new Dictionary<IntPtr, string>();
 
             EnumWindows((hwnd, lParam) => {
-                    if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW) {
-                        var sb = new StringBuilder(100);
-                        GetWindowText(hwnd, sb, sb.Capacity);
-                        if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
-                            Console.WriteLine("Ignoring invisible window: {0}", sb);
-                        }
-                        else {
-                            ret.Add(hwnd, sb.ToString());
-                        }
+                    if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) != TARGETWINDOW) {
+                        return true; //continue enumeration
                     }
+
+                    StringBuilder sb = new StringBuilder(100);
+                    GetWindowText(hwnd, sb, sb.Capacity);
+//                    if (IsInvisibleWin10BackgroundAppWindow(hwnd)) {
+                        Console.WriteLine("Ignoring invisible window: {0}", sb);
+//                    }
+//                    else {
+                        ret.Add(hwnd, sb.ToString());
+//                    }
 
                     return true; //continue enumeration
                 }
@@ -139,8 +140,7 @@ namespace BetterDesktop {
 
         static bool IsInvisibleWin10BackgroundAppWindow(IntPtr hWnd) {
             bool cloakedVal;
-            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out cloakedVal,
-                Marshal.SizeOf(typeof(bool)));
+            int hRes = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.Cloaked, out cloakedVal, Marshal.SizeOf(typeof(bool)));
             if (hRes != 0) {
                 cloakedVal = false;
             }
@@ -148,8 +148,9 @@ namespace BetterDesktop {
         }
 
         public static IntPtr CreateThumbnail(IntPtr destination, IntPtr source, IntPtr oldHandle, Rect dest) {
-            if (oldHandle != IntPtr.Zero)
+            if (oldHandle != IntPtr.Zero) {
                 DwmUnregisterThumbnail(oldHandle);
+            }
 
             IntPtr newhandle;
 
@@ -159,7 +160,7 @@ namespace BetterDesktop {
                 return newhandle;
             }
 
-            var props = new DwmThumbnailProperties();
+            DwmThumbnailProperties props = new DwmThumbnailProperties();
 
             props.dwFlags =
                 DWM_TNP_SOURCECLIENTAREAONLY |
