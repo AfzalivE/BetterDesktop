@@ -74,10 +74,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Box.cs" />
     <Compile Include="Desktop.cs" />
     <Compile Include="DWM.cs" />
     <Compile Include="DwmUtils.cs" />
     <Compile Include="Thumbnail.cs" />
+    <Compile Include="Window.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
