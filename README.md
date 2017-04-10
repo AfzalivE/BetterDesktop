@@ -1,5 +1,9 @@
 # BetterDesktop
 
+Development of this application has moved into a private repository now. 
+
+Feel free to fork this repo in its current state. Will attach a license soon.
+
 This application hopes to become for Windows 10 what TotalSpaces2 is for Mac. It has a long way to go.
 
 - Assignable global hotkeys to invoke functions in the app
