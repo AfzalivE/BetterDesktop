@@ -10,10 +10,9 @@ namespace BetterDesktop {
 
         static readonly int GWL_STYLE = -16;
 
-
         static readonly ulong WS_VISIBLE = 0x10000000L;
         static readonly ulong WS_BORDER = 0x00800000L;
-        static readonly ulong TARGETWINDOW = WS_BORDER | WS_VISIBLE;
+        static readonly ulong TARGET_WINDOW = WS_BORDER | WS_VISIBLE;
 
         #endregion
 
@@ -21,12 +20,6 @@ namespace BetterDesktop {
 
         [DllImport("user32.dll", EntryPoint = "GetWindowPlacement")]
         private static extern bool InternalGetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);
-
-        public static bool GetWindowPlacement(IntPtr hWnd, out WindowPlacement placement) {
-            placement = new WindowPlacement();
-            placement.Length = Marshal.SizeOf(typeof(WindowPlacement));
-            return InternalGetWindowPlacement(hWnd, ref placement);
-        }
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetWindow(IntPtr hWnd, GetWindowCmd uCmd);
@@ -75,11 +68,17 @@ namespace BetterDesktop {
 
         #endregion
 
+        public static bool GetWindowPlacement(IntPtr hWnd, out WindowPlacement placement) {
+            placement = new WindowPlacement();
+            placement.Length = Marshal.SizeOf(typeof(WindowPlacement));
+            return InternalGetWindowPlacement(hWnd, ref placement);
+        }
+
         public static Dictionary<IntPtr, string> LoadWindows() {
             Dictionary<IntPtr, string> ret = new Dictionary<IntPtr, string>();
 
             EnumWindows((hwnd, lParam) => {
-                    if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) != TARGETWINDOW) {
+                    if ((GetWindowLongA(hwnd, GWL_STYLE) & TARGET_WINDOW) != TARGET_WINDOW) {
                         return true; //continue enumeration
                     }
 
