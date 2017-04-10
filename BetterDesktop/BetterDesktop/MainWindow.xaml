@@ -8,22 +8,28 @@
         Title="MainWindow"
         AllowsTransparency="True"
         Opacity="0.5">
-    <UniformGrid
-        Name="DesktopGrid"
-        Height="Auto"
-        Width="Auto"
-        VerticalAlignment="Stretch"
-        HorizontalAlignment="Stretch"
-        Rows="3"
-        Columns="3">
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="0" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="0" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="0" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="1" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="1" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="1" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="2" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="2" />
-        <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="2" />
-    </UniformGrid>
+    <Grid>
+        <UniformGrid
+            Name="DesktopGrid"
+            Height="Auto"
+            Visibility="Visible"
+            Width="Auto"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            Rows="3"
+            Columns="3">
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="0" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="0" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="0" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="1" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="1" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="1" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="0" Grid.Row="2" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="1" Grid.Row="2" />
+            <local:Box BorderThickness="1" BorderBrush="Black" Margin="10,10" Grid.Column="2" Grid.Row="2" />
+        </UniformGrid>
+        <Canvas
+            Name="WindowContainer">
+        </Canvas>
+    </Grid>
 </Window>

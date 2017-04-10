@@ -73,31 +73,31 @@ namespace BetterDesktop {
                 target = (HwndSource) HwndSource.FromVisual(this);
 
                 // if we have one, we can attempt to register the thumbnail
-                if (target != null && 0 == DWM.DwmRegisterThumbnail(target.Handle, source, out this.thumb)) {
-                    DWM.ThumbnailProperties props = new DWM.ThumbnailProperties();
+                if (target != null && 0 == Dwm.DwmRegisterThumbnail(target.Handle, source, out this.thumb)) {
+                    DwmThumbnailProperties props = new DwmThumbnailProperties();
                     props.Visible = false;
                     props.SourceClientAreaOnly = this.ClientAreaOnly;
                     props.Opacity = (byte) (255 * this.Opacity);
-                    props.Flags = DWM.ThumbnailFlags.Visible | DWM.ThumbnailFlags.SourceClientAreaOnly
-                                  | DWM.ThumbnailFlags.Opacity;
-                    DWM.DwmUpdateThumbnailProperties(thumb, ref props);
+                    props.Flags = ThumbnailFlags.Visible | ThumbnailFlags.SourceClientAreaOnly
+                                  | ThumbnailFlags.Opacity;
+                    Dwm.DwmUpdateThumbnailProperties(thumb, ref props);
                 }
             }
         }
 
         private void ReleaseThumbnail() {
-            DWM.DwmUnregisterThumbnail(thumb);
+            Dwm.DwmUnregisterThumbnail(thumb);
             this.thumb = IntPtr.Zero;
             this.target = null;
         }
 
         private void UpdateThumbnail() {
             if (IntPtr.Zero != thumb) {
-                DWM.ThumbnailProperties props = new DWM.ThumbnailProperties();
+                DwmThumbnailProperties props = new DwmThumbnailProperties();
                 props.SourceClientAreaOnly = this.ClientAreaOnly;
                 props.Opacity = (byte) (255 * this.Opacity);
-                props.Flags = DWM.ThumbnailFlags.SourceClientAreaOnly | DWM.ThumbnailFlags.Opacity;
-                DWM.DwmUpdateThumbnailProperties(thumb, ref props);
+                props.Flags = ThumbnailFlags.SourceClientAreaOnly | ThumbnailFlags.Opacity;
+                Dwm.DwmUpdateThumbnailProperties(thumb, ref props);
             }
         }
 
@@ -122,19 +122,19 @@ namespace BetterDesktop {
                 Point a = transform.Transform(new Point(0, 0));
                 Point b = transform.Transform(new Point(this.ActualWidth, this.ActualHeight));
 
-                DWM.ThumbnailProperties props = new DWM.ThumbnailProperties();
+                DwmThumbnailProperties props = new DwmThumbnailProperties();
                 props.Visible = true;
-                props.Destination = new DWM.Rect(
+                props.Destination = new Rect(
                     (int) Math.Ceiling(a.X), (int) Math.Ceiling(a.Y),
                     (int) Math.Ceiling(b.X), (int) Math.Ceiling(b.Y));
-                props.Flags = DWM.ThumbnailFlags.Visible | DWM.ThumbnailFlags.RectDetination;
-                DWM.DwmUpdateThumbnailProperties(thumb, ref props);
+                props.Flags = ThumbnailFlags.Visible | ThumbnailFlags.RectDetination;
+                Dwm.DwmUpdateThumbnailProperties(thumb, ref props);
             }
         }
 
         protected override Size MeasureOverride(Size availableSize) {
-            DWM.Size size;
-            DWM.DwmQueryThumbnailSourceSize(this.thumb, out size);
+            Psize size;
+            Dwm.DwmQueryThumbnailSourceSize(this.thumb, out size);
 
             double scale = 1;
 
@@ -150,8 +150,8 @@ namespace BetterDesktop {
         }
 
         protected override Size ArrangeOverride(Size finalSize) {
-            DWM.Size size;
-            DWM.DwmQueryThumbnailSourceSize(this.thumb, out size);
+            Psize size;
+            Dwm.DwmQueryThumbnailSourceSize(this.thumb, out size);
 
             // scale to fit whatever size we were allocated
             double scale = finalSize.Width / size.Width;

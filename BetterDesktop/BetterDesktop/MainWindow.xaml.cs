@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Interop;
 using WindowsDesktop;
@@ -69,7 +70,7 @@ namespace BetterDesktop {
         }
 
         private void LoadWindows(Dictionary<Guid, Desktop> desktops) {
-            Dictionary<IntPtr, string> windows = Utils.LoadWindows();
+            Dictionary<IntPtr, string> windows = Dwm.LoadWindows();
 
             foreach (KeyValuePair<IntPtr, string> entry in windows) {
                 var vDesktop = VirtualDesktop.FromHwnd(entry.Key);
@@ -86,15 +87,7 @@ namespace BetterDesktop {
                 }
 
 
-                var windowItem = new WindowItem() {
-                    handle = entry.Key,
-                    title = entry.Value
-                };
-
-                Rect windowRect;
-                if (Utils.GetWindowRect(entry.Key, out windowRect)) {
-                    windowItem.windowRect = windowRect;
-                }
+                var windowItem = new WindowItem(entry.Key, entry.Value);
 
                 desktop.windows.Add(windowItem);
             }
@@ -121,6 +114,17 @@ namespace BetterDesktop {
 
         void ShowWindowsInDesktop(List<WindowItem> windows, Grid grid, Desktop desktop) {
             List<WindowItem>.Enumerator e = windows.GetEnumerator();
+            UIElement desktopElement = desktop.desktopElement;
+
+            double parentWidth = desktopElement.RenderSize.Width;
+            double parentHeight = desktopElement.RenderSize.Height;
+            Point origin = desktopElement.TransformToAncestor(this).Transform(new Point(0, 0));
+            double x = origin.X;
+            double y = origin.Y;
+            // figure out width and height per item
+            double widthPerItem = parentWidth / grid.Width;
+            double heightPerItem = parentHeight / grid.Height;
+
 
             for (int hi = 0; hi < grid.Height; hi++) {
                 for (int wi = 0; wi < grid.Width; wi++) {
@@ -133,62 +137,20 @@ namespace BetterDesktop {
                         continue;
                     }
 
-                    Console.WriteLine("Window: {0}, in Desktop: {1}", entry.title, desktop.Id);
-
-                    UIElement desktopElement = desktop.desktopElement;
-
-                    double parentWidth = desktopElement.RenderSize.Width;
-                    double parentHeight = desktopElement.RenderSize.Height;
-                    Point origin = desktopElement.TransformToAncestor(this).Transform(new Point(0, 0));
-                    double x = origin.X;
-                    double y = origin.Y;
-                    // figure out width and height per item
-                    double widthPerItem = parentWidth / grid.Width;
-                    double heightPerItem = parentHeight / grid.Height;
+                    Console.WriteLine("Window: {0}, in Desktop: {1}", entry.Title, desktop.Id);
 
                     int startXPos = (int) (wi * widthPerItem + x);
                     int startYPos = (int) (hi * heightPerItem + y);
                     int endXPos = (int) ((wi + 1) * widthPerItem + x);
                     int endYPos = (int) ((hi + 1) * heightPerItem + y);
-                    DrawRectForWindow(entry, startXPos, startYPos, endXPos, endYPos);
+
+                    Console.WriteLine("Left: {0}, Top: {1}, Right: {2}, Bottom: {3}", startXPos, startYPos, endXPos, endYPos);
+
+                    entry.SetContainerRect(startXPos, startYPos, endXPos, endYPos);
+                    WindowContainer.Children.Add(entry);
+                    entry.DrawRectForWindow();
                 }
             }
-        }
-
-        private void DrawRectForWindow(WindowItem window, int left, int top, int right, int bottom) {
-            IntPtr thisHandle = _wih.Handle;
-            double scale = GetSystemScale();
-            // keep original window aspect ratio
-            var windowRect = window.windowRect;
-            double windowWidth = windowRect.Right - windowRect.Left;
-            double windowHeight = windowRect.Bottom - windowRect.Top;
-
-            double rectHeight = bottom - top;
-            double scaleFactor = rectHeight / windowHeight;
-
-            windowHeight = scaleFactor * windowHeight;
-            windowWidth = scaleFactor * windowWidth;
-
-            // origins remain the same as provided
-            var rect = new Rect((int) (left), (int) (top), (int) (left + windowWidth), (int) (top + windowHeight));
-
-            var scaledRect = new Rect((int) (left * scale), (int) (top * scale), (int) ((left + windowWidth) * scale), (int) ((top + windowHeight) * scale));
-            IntPtr dwmHandle;
-
-            if (!_dwmHandles.TryGetValue(window.handle, out dwmHandle)) {
-                dwmHandle = IntPtr.Zero;
-            }
-
-            dwmHandle = Utils.CreateThumbnail(thisHandle, window.handle, dwmHandle, scaledRect);
-            _dwmHandles.Add(window.handle, dwmHandle);
-        }
-
-        public double GetSystemScale() {
-            double dpi = 1.0;
-            using (System.Drawing.Graphics graphics = System.Drawing.Graphics.FromHwnd(IntPtr.Zero)) {
-                dpi = graphics.DpiX / 96.0;
-            }
-            return dpi;
         }
     }
 }

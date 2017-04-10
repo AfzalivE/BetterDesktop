@@ -77,7 +77,6 @@
     <Compile Include="Box.cs" />
     <Compile Include="Desktop.cs" />
     <Compile Include="DWM.cs" />
-    <Compile Include="DwmUtils.cs" />
     <Compile Include="Thumbnail.cs" />
     <Compile Include="WindowItem.cs" />
     <Page Include="MainWindow.xaml">
