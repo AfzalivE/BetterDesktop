@@ -70,7 +70,7 @@ namespace BetterDesktop {
         }
 
         private void LoadWindows(Dictionary<Guid, Desktop> desktops) {
-            Dictionary<IntPtr, string> windows = Dwm.LoadWindows();
+            Dictionary<IntPtr, string> windows = DwmUtils.LoadWindows();
 
             foreach (KeyValuePair<IntPtr, string> entry in windows) {
                 var vDesktop = VirtualDesktop.FromHwnd(entry.Key);

@@ -5,7 +5,7 @@ using System.Text;
 using WindowsDesktop;
 
 namespace BetterDesktop {
-    public static class Dwm {
+    public static class DwmUtils {
         #region Constants
 
         static readonly int GWL_STYLE = -16;

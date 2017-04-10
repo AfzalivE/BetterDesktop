@@ -23,7 +23,7 @@ namespace BetterDesktop {
 
             this.BorderBrush = Brushes.OrangeRed;
             this.BorderThickness = new Thickness(2);
-            Dwm.GetWindowRect(handle, out WindowRect);
+            DwmUtils.GetWindowRect(handle, out WindowRect);
 
 //            this.LayoutUpdated += new EventHandler(OnLayoutUpdated);
 //            this.Unloaded += new RoutedEventHandler(OnUnloaded);
@@ -71,7 +71,7 @@ namespace BetterDesktop {
                 return;
             }
 
-            double scale = Dwm.GetSystemScale();
+            double scale = DwmUtils.GetSystemScale();
             // keep original window aspect ratio
             double windowWidth = WindowRect.Right - WindowRect.Left;
             double windowHeight = WindowRect.Bottom - WindowRect.Top;
@@ -104,7 +104,7 @@ namespace BetterDesktop {
 //                (int) Math.Ceiling(b.X), (int) Math.Ceiling(b.Y));
 
             props.Flags = ThumbnailFlags.Visible | ThumbnailFlags.RectDetination;
-            Dwm.DwmUpdateThumbnailProperties(_thumb, ref props);
+            DwmUtils.DwmUpdateThumbnailProperties(_thumb, ref props);
         }
 
         private void InitializeThumbnail() {
@@ -121,7 +121,7 @@ namespace BetterDesktop {
             _target = (HwndSource) HwndSource.FromVisual(this);
 
             // if we have one, we can attempt to register the thumbnail
-            if (_target == null || 0 != Dwm.DwmRegisterThumbnail(_target.Handle, Handle, out this._thumb)) {
+            if (_target == null || 0 != DwmUtils.DwmRegisterThumbnail(_target.Handle, Handle, out this._thumb)) {
                 return;
             }
 
@@ -133,11 +133,11 @@ namespace BetterDesktop {
                           ThumbnailFlags.SourceClientAreaOnly |
                           ThumbnailFlags.Opacity;
 
-            Dwm.DwmUpdateThumbnailProperties(_thumb, ref props);
+            DwmUtils.DwmUpdateThumbnailProperties(_thumb, ref props);
         }
 
         private void ReleaseThumbnail() {
-            Dwm.DwmUnregisterThumbnail(_thumb);
+            DwmUtils.DwmUnregisterThumbnail(_thumb);
             this._thumb = IntPtr.Zero;
             this._target = null;
         }
