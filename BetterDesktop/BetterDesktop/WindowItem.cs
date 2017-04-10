@@ -21,40 +21,23 @@ namespace BetterDesktop {
             this.Handle = handle;
             this.Title = title;
 
-            this.BorderBrush = Brushes.OrangeRed;
-            this.BorderThickness = new Thickness(2);
+            BorderBrush = Brushes.OrangeRed;
+            BorderThickness = new Thickness(2);
+
+            // Using this makes clicking work inside the box
+            Background = new SolidColorBrush(Colors.Blue);
+            Background.Opacity = 1;
+
             DwmUtils.GetWindowRect(handle, out WindowRect);
+
+            // clicking only works inside the WindowItem bounds
+            this.MouseLeftButtonUp += (sender, args) => {
+                DwmUtils.SetForegroundWindow(handle);
+            };
 
 //            this.LayoutUpdated += new EventHandler(OnLayoutUpdated);
 //            this.Unloaded += new RoutedEventHandler(OnUnloaded);
         }
-
-//        private void DrawRectForWindow(int left, int top, int right, int bottom) {
-//            IntPtr thisHandle = _wih.Handle;
-//            double scale = DWM.GetSystemScale();
-//            // keep original window aspect ratio
-//            double windowWidth = windowRect.Right - windowRect.Left;
-//            double windowHeight = windowRect.Bottom - windowRect.Top;
-//
-//            double rectHeight = bottom - top;
-//            double scaleFactor = rectHeight / windowHeight;
-//
-//            windowHeight = scaleFactor * windowHeight;
-//            windowWidth = scaleFactor * windowWidth;
-//
-//            // origins remain the same as provided
-//            var rect = new Rect((int) (left), (int) (top), (int) (left + windowWidth), (int) (top + windowHeight));
-//
-//            var scaledRect = new Rect((int) (left * scale), (int) (top * scale), (int) ((left + windowWidth) * scale), (int) ((top + windowHeight) * scale));
-//            IntPtr dwmHandle;
-//
-//            if (!_dwmHandles.TryGetValue(handle, out dwmHandle)) {
-//                dwmHandle = IntPtr.Zero;
-//            }
-//
-//            dwmHandle = Utils.CreateThumbnail(thisHandle, handle, dwmHandle, scaledRect);
-//            _dwmHandles.Add(window.handle, dwmHandle);
-//        }
 
         public void DrawRectForWindow() {
             if (IntPtr.Zero == _thumb) {
@@ -95,7 +78,7 @@ namespace BetterDesktop {
                 (int) (origin.Y * scale),
                 (int) ((origin.X + windowWidth) * scale),
                 (int) ((origin.Y + windowHeight) * scale));
-            
+
             DwmThumbnailProperties props = new DwmThumbnailProperties();
             props.Visible = true;
             props.Destination = scaledRect;
